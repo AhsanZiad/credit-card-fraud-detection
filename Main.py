@@ -24,7 +24,9 @@ def route():
     elif st.session_state.page == "Upload":
         from Pages.Upload import show_upload
         from joblib import load
-        model = load("credit_card_fraud_detection.pkl")  # Make sure this filename is correct
+
+        # Load the trained ML model
+        model = load("credit_card_fraud_detection.pkl")
         show_upload(model)
 
     elif st.session_state.page == "Dashboard":
@@ -39,5 +41,6 @@ def route():
         from Pages.Admin import show_admin
         show_admin()
 
-# Run the app
-route()
+# Run the router
+if __name__ == "__main__":
+    route()
