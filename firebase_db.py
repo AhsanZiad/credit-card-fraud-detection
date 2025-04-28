@@ -3,14 +3,16 @@ from firebase_admin import credentials, firestore
 
 # Initialize Firebase app
 if not firebase_admin._apps:
-    cred = credentials.Certificate("path/to/your/firebase-service-account.json")
+    cred = credentials.Certificate("firebase-key.json")  # <-- Replace with your downloaded JSON key
     firebase_admin.initialize_app(cred)
 
+# Initialize Firestore client
 db = firestore.client()
 
-# --- USERS Collection ---
+# ------------------ USERS Collection ------------------ #
 
 def add_user(username, password):
+    """Add a new user to Firestore."""
     users_ref = db.collection('users')
     users_ref.document(username).set({
         'username': username,
@@ -18,6 +20,7 @@ def add_user(username, password):
     })
 
 def get_user(username):
+    """Get user data by username."""
     user_ref = db.collection('users').document(username)
     user = user_ref.get()
     if user.exists:
@@ -25,9 +28,16 @@ def get_user(username):
     else:
         return None
 
-# --- PREDICTIONS Collection ---
+def get_all_users():
+    """Fetch all users."""
+    users_ref = db.collection('users')
+    docs = users_ref.stream()
+    return [doc.to_dict() for doc in docs]
+
+# ------------------ PREDICTIONS Collection ------------------ #
 
 def save_prediction(username, time, amount, status):
+    """Save a transaction prediction."""
     predictions_ref = db.collection('predictions')
     predictions_ref.add({
         'username': username,
@@ -37,16 +47,13 @@ def save_prediction(username, time, amount, status):
     })
 
 def get_predictions(username):
+    """Get all predictions for a specific user."""
     predictions_ref = db.collection('predictions').where('username', '==', username)
     docs = predictions_ref.stream()
     return [doc.to_dict() for doc in docs]
 
 def get_all_predictions():
+    """Fetch all predictions (for Admin panel)."""
     predictions_ref = db.collection('predictions')
     docs = predictions_ref.stream()
-    return [doc.to_dict() for doc in docs]
-
-def get_all_users():
-    users_ref = db.collection('users')
-    docs = users_ref.stream()
     return [doc.to_dict() for doc in docs]
