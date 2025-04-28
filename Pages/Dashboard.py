@@ -24,7 +24,6 @@ def show_dashboard():
         st.session_state.page = "Home"
         st.rerun()
 
-    # Navigation Buttons
     col1, col2 = st.columns(2)
 
     with col1:
@@ -45,22 +44,25 @@ def show_dashboard():
 
     st.divider()
 
-    # 📥 Fetch user-specific predictions from Firebase
     st.subheader("📑 Your Previous Predictions")
 
     user_predictions = get_predictions(st.session_state.user)
 
     if user_predictions:
         df = pd.DataFrame(user_predictions)
-        st.dataframe(df[["time", "amount", "status"]])
 
-        frauds = df[df["status"] == "🚨 Fraud"]
-        if not frauds.empty:
-            st.warning(f"🚨 {len(frauds)} fraudulent transactions detected.")
+        if not df.empty:
+            st.dataframe(df[["time", "amount", "status"]])
+
+            frauds = df[df["status"] == "🚨 Fraud"]
+            if not frauds.empty:
+                st.warning(f"🚨 {len(frauds)} fraudulent transactions detected.")
+            else:
+                st.success("✅ No frauds detected in your transactions.")
+
+            csv = df.to_csv(index=False).encode('utf-8')
+            st.download_button("📥 Download Your Prediction History", csv, "your_predictions.csv", "text/csv")
         else:
-            st.success("✅ No frauds detected in your transactions.")
-
-        csv = df.to_csv(index=False).encode('utf-8')
-        st.download_button("📥 Download Your Prediction History", csv, "your_predictions.csv", "text/csv")
+            st.info("ℹ️ No previous uploads found yet.")
     else:
         st.info("ℹ️ No previous uploads found yet.")
