@@ -5,13 +5,12 @@ from firebase_db import get_predictions
 def show_dashboard():
     st.markdown("""
         <style>
-        .top-bar {
+        .top-buttons {
             display: flex;
             justify-content: flex-end;
-            align-items: center;
             margin-bottom: 20px;
         }
-        .top-bar button {
+        .top-buttons button {
             margin-left: 10px;
             background-color: #4CAF50;
             color: white;
@@ -19,41 +18,31 @@ def show_dashboard():
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 14px;
-        }
-        .top-bar button:hover {
-            background-color: #45a049;
-        }
-        .dashboard-title {
-            text-align: center;
-            color: #4CAF50;
-            font-size: 40px;
-            margin-top: 20px;
-            margin-bottom: 30px;
         }
         </style>
     """, unsafe_allow_html=True)
 
-    top_col1, top_col2, top_col3 = st.columns(3)
+    # Buttons at the top
+    top1, top2, top3 = st.columns(3)
 
-    with top_col1:
+    with top1:
         if st.button("📤 Upload Transactions"):
             st.session_state.page = "Upload"
             st.rerun()
 
-    with top_col2:
+    with top2:
         if st.button("ℹ️ About Us"):
             st.session_state.page = "About"
             st.rerun()
 
-    with top_col3:
+    with top3:
         if st.button("🔓 Log Out"):
             st.session_state.logged_in = False
             st.session_state.user = ""
             st.session_state.page = "Home"
             st.rerun()
 
-    st.markdown("<div class='dashboard-title'>📊 Dashboard</div>", unsafe_allow_html=True)
+    st.title("📊 Dashboard")
     st.divider()
 
     st.subheader("📑 Your Previous Predictions")
