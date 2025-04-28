@@ -60,3 +60,8 @@ def show_home():
         if st.button("🚀 Get Started", use_container_width=True):
             st.session_state.page = "Login"
             st.rerun()
+# Little Footer
+    st.markdown("""
+        <hr style='border: 1px solid #f0f0f0;'>
+        <p style='text-align: center; font-size: 12px;'>Secure Fraud Detection System By Ahsan Ziad| 2025</p>
+    """, unsafe_allow_html=True)
