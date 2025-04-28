@@ -17,7 +17,6 @@ def show_dashboard():
 
     st.markdown("<div class='dashboard-title'>📊 Dashboard</div>", unsafe_allow_html=True)
 
-    # Log Out Button
     if st.button("🔓 Log Out"):
         st.session_state.logged_in = False
         st.session_state.user = ""
@@ -32,8 +31,8 @@ def show_dashboard():
             st.rerun()
 
     with col2:
-        if st.button("📬 Contact Us"):
-            st.session_state.page = "Contact"
+        if st.button("ℹ️ About Us"):
+            st.session_state.page = "About"
             st.rerun()
 
     if st.session_state.user == "admin":
