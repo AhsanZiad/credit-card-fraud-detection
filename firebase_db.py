@@ -3,7 +3,7 @@ from firebase_admin import credentials, firestore
 
 # Initialize Firebase app
 if not firebase_admin._apps:
-    cred = credentials.Certificate("firebase-key.json")  # <-- Replace with your downloaded JSON key
+    cred = credentials.Certificate("credit-card-fraud-detect-775f4-firebase-adminsdk-fbsvc-e65ebd74c2.json")
     firebase_admin.initialize_app(cred)
 
 # Initialize Firestore client
