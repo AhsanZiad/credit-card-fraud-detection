@@ -1,5 +1,6 @@
 import streamlit as st
-from db import create_users_table, add_user, get_user
+from firebase_db import add_user, get_user
+
 
 def show_login():
     st.markdown("""
