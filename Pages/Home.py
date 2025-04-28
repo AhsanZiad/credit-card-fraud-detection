@@ -3,44 +3,58 @@ import streamlit as st
 def show_home():
     st.markdown("""
         <style>
-        .landing {
-            background-image: url('');
-            background-size: cover;
-            background-position: center;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        .landing-container {
+            text-align: center;
+            padding-top: 10vh;
+            padding-bottom: 5vh;
         }
-     
         .title {
-            font-size: 40px;
+            font-size: 50px;
             font-weight: bold;
-            color: #c3ffad;
+            color: #4CAF50;
             margin-bottom: 20px;
         }
         .subtext {
-            font-size: 22px;
-            margin-bottom: 30px;
+            font-size: 24px;
+            color: #555;
+            margin-bottom: 40px;
+        }
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
         }
         .stButton>button {
-            font-size: 18px;
-            padding: 10px 25px;
-            margin: 10px;
-            border-radius: 10px;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 20px;
+            padding: 12px 30px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+        }
+        .stButton>button:hover {
+            background-color: #45a049;
         }
         </style>
     """, unsafe_allow_html=True)
 
-    
-    st.markdown('<div class="title">Credit Card Fraud Detection</div>', unsafe_allow_html=True)
-    st.markdown('<div class="subtext">Are you worried about Fraud Transactions?</div>', unsafe_allow_html=True)
+    # Landing content
+    st.markdown("""
+        <div class="landing-container">
+            <div class="title">Credit Card Fraud Detection</div>
+            <div class="subtext">Are you worried about Fraud Transactions?</div>
+        </div>
+    """, unsafe_allow_html=True)
 
-    col1, col2 = st.columns(2)
+    # Buttons
+    col1, col2, col3 = st.columns([2,1,2])
+
     with col1:
-        if st.button("Sign In"):
-            st.session_state.page = "Login"
+        pass  # empty space
     with col2:
-        if st.button("Sign Up"):
-            st.session_state.page = "Login"  # You can route this to a separate signup page if needed
-
+        if st.button("🚀 Get Started", use_container_width=True):
+            st.session_state.page = "Login"
+            st.rerun()
+    with col3:
+        pass  # empty space
