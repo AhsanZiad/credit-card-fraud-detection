@@ -12,14 +12,7 @@ def show_home():
             justify-content: center;
             align-items: center;
         }
-        .content-box {
-            background-color: rgba(0, 0, 0, 0.6);
-            padding: 60px 40px;
-            border-radius: 15px;
-            color: white;
-            text-align: center;
-            max-width: 600px;
-        }
+     
         .title {
             font-size: 40px;
             font-weight: bold;
@@ -39,7 +32,7 @@ def show_home():
         </style>
     """, unsafe_allow_html=True)
 
-    st.markdown('<div class="landing"><div class="content-box">', unsafe_allow_html=True)
+    
     st.markdown('<div class="title">Credit Card Fraud Detection</div>', unsafe_allow_html=True)
     st.markdown('<div class="subtext">Are you worried about Fraud Transactions?</div>', unsafe_allow_html=True)
 
