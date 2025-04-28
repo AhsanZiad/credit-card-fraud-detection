@@ -1,7 +1,6 @@
 import streamlit as st
 from firebase_db import add_user, get_user
 
-
 def show_login():
     st.markdown("""
         <style>
@@ -31,8 +30,7 @@ def show_login():
         <hr>
     """, unsafe_allow_html=True)
 
-    # Ensure the user table exists
-    create_users_table()
+    # No need for create_users_table anymore (because Firebase handles it automatically)
 
     # Tabs for Login and Sign Up
     tab1, tab2 = st.tabs(["Login", "Sign Up"])
@@ -45,12 +43,12 @@ def show_login():
 
             if st.button("Login", use_container_width=True, key="login_btn"):
                 user = get_user(username)
-                if user and user[1] == password:
-                    st.success("✅ Login successful")
+                if user and user.get('password') == password:
+                    st.success("✅ Login successful!")
                     st.session_state.logged_in = True
                     st.session_state.user = username
                     st.session_state.page = "Dashboard"
-                    st.rerun()  # ✅ fixed here
+                    st.rerun()
                 else:
                     st.error("❌ Invalid username or password.")
 
