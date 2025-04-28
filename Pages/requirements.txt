@@ -1,7 +1,0 @@
-streamlit
-firebase-admin
-pandas
-numpy
-matplotlib
-joblib
-scikit-learn
