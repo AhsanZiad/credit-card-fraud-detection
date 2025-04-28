@@ -33,7 +33,7 @@ def show_dashboard():
         </style>
     """, unsafe_allow_html=True)
 
-    # Navbar Top Right
+   
     st.markdown("""
         <div class="navbar">
             <form action="?nav=upload" method="post"><button type="submit">Upload Transactions</button></form>
@@ -57,11 +57,11 @@ def show_dashboard():
         st.session_state.page = "Home"
         st.experimental_rerun()
 
-    # Dashboard Title
+ 
     st.markdown("<div class='dashboard-title'>📊 Dashboard</div>", unsafe_allow_html=True)
     st.divider()
 
-    # Predictions Section
+
     st.subheader("📑 Your Previous Predictions")
 
     user_predictions = get_predictions(st.session_state.user)
@@ -85,3 +85,21 @@ def show_dashboard():
     else:
         st.info("ℹ️ No previous uploads found yet.")
 
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    if st.button("📤 Upload Transactions", use_container_width=True):
+        st.session_state.page = "Upload"
+        st.rerun()
+
+with col2:
+    if st.button("ℹ️ About Us", use_container_width=True):
+        st.session_state.page = "About"
+        st.rerun()
+
+with col3:
+    if st.button("🔓 Log Out", use_container_width=True):
+        st.session_state.logged_in = False
+        st.session_state.user = ""
+        st.session_state.page = "Home"
+        st.rerun()
