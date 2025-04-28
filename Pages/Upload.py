@@ -1,11 +1,13 @@
 import streamlit as st
 import pandas as pd
-from firebase_db import get_predictions
+import numpy as np
+import matplotlib.pyplot as plt
+from firebase_db import save_prediction
 
-def show_dashboard():
+def show_upload(model):
     st.markdown("""
         <style>
-        .dashboard-title {
+        .upload-title {
             text-align: center;
             color: #4CAF50;
             font-size: 40px;
@@ -15,52 +17,77 @@ def show_dashboard():
         </style>
     """, unsafe_allow_html=True)
 
-    st.markdown("<div class='dashboard-title'>📊 Dashboard</div>", unsafe_allow_html=True)
+    st.markdown("<div class='upload-title'>📤 Upload Transactions</div>", unsafe_allow_html=True)
 
-    if st.button("🔓 Log Out"):
-        st.session_state.logged_in = False
-        st.session_state.user = ""
-        st.session_state.page = "Home"
-        st.rerun()
+    uploaded_file = st.file_uploader("Upload your credit card transaction CSV file", type=["csv"], key="upload_csv")
 
-    col1, col2 = st.columns(2)
+    if uploaded_file is not None:
+        df = pd.read_csv(uploaded_file)
 
-    with col1:
-        if st.button("📤 Upload Transactions"):
-            st.session_state.page = "Upload"
-            st.rerun()
+        st.subheader("📊 Preview of Uploaded Data")
+        st.dataframe(df.head())
 
-    with col2:
-        if st.button("ℹ️ About Us"):
-            st.session_state.page = "About"
-            st.rerun()
+        try:
+            required_features = [
+                'Time', 'V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8',
+                'V9', 'V10', 'V11', 'V12', 'V13', 'V14', 'V15', 'V16',
+                'V17', 'V18', 'V19', 'V20', 'V21', 'V22', 'V23', 'V24',
+                'V25', 'V26', 'V27', 'V28', 'Amount'
+            ]
 
-    if st.session_state.user == "admin":
-        st.markdown("---")
-        if st.button("🛡️ Admin Panel"):
-            st.session_state.page = "Admin"
-            st.rerun()
+            input_data = df[required_features]
+            predictions = model.predict(input_data)
 
-    st.divider()
+            df["Prediction"] = predictions
+            df["Status"] = df["Prediction"].apply(lambda x: "✅ Legit" if x == 0 else "🚨 Fraud")
 
-    st.subheader("📑 Your Previous Predictions")
+            st.subheader("🔍 Prediction Results")
+            fraud_only = st.checkbox("🚨 Show Fraud Only", value=False)
 
-    user_predictions = get_predictions(st.session_state.user)
-
-    if user_predictions:
-        df = pd.DataFrame(user_predictions)
-        if not df.empty:
-            st.dataframe(df[["time", "amount", "status"]])
-
-            frauds = df[df["status"] == "🚨 Fraud"]
-            if not frauds.empty:
-                st.warning(f"🚨 {len(frauds)} fraudulent transactions detected.")
+            if fraud_only:
+                fraud_df = df[df["Prediction"] == 1]
+                st.dataframe(fraud_df[["Time", "Amount", "Status"]])
             else:
-                st.success("✅ No frauds detected in your transactions.")
+                st.dataframe(df[["Time", "Amount", "Status"]])
 
             csv = df.to_csv(index=False).encode('utf-8')
-            st.download_button("📥 Download Your Prediction History", csv, "your_predictions.csv", "text/csv")
-        else:
-            st.info("ℹ️ No previous uploads found yet.")
-    else:
-        st.info("ℹ️ No previous uploads found yet.")
+            st.download_button("📥 Download Prediction Results", csv, "predictions.csv", "text/csv")
+
+            fraud_count = (df["Prediction"] == 1).sum()
+            legit_count = (df["Prediction"] == 0).sum()
+            total = len(df)
+
+            st.subheader("📈 Summary")
+            st.markdown(f"""
+            - 🧾 Total Transactions: `{total}`
+            - ✅ Legit Transactions: `{legit_count}`
+            - 🚨 Fraudulent Transactions: `{fraud_count}`
+            - 📊 Fraud Rate: `{(fraud_count / total * 100):.2f}%`
+            """)
+
+            fig1, ax1 = plt.subplots()
+            ax1.pie([legit_count, fraud_count], labels=["Legit", "Fraud"], autopct='%1.1f%%')
+            st.pyplot(fig1)
+
+            fig2, ax2 = plt.subplots()
+            ax2.bar(["Legit", "Fraud"], [legit_count, fraud_count], color=['green', 'red'])
+            ax2.set_ylabel("Number of Transactions")
+            st.pyplot(fig2)
+
+            for idx, row in df.iterrows():
+                save_prediction(
+                    username=st.session_state.user,
+                    time=row["Time"],
+                    amount=row["Amount"],
+                    status=row["Status"]
+                )
+
+            st.success("✅ Predictions saved successfully!")
+
+        except Exception as e:
+            st.error(f"Something went wrong: {e}")
+
+    # Navigation Buttons
+    if st.button("⬅️ Back to Dashboard"):
+        st.session_state.page = "Dashboard"
+        st.rerun()
