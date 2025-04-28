@@ -1,73 +1,62 @@
 import streamlit as st
-from db import create_users_table, add_user, get_user
 
-def show_login():
+def show_home():
     st.markdown("""
         <style>
+        .landing-container {
+            text-align: center;
+            padding-top: 10vh;
+            padding-bottom: 5vh;
+            background-image: url('https://images.unsplash.com/photo-1605902711622-cfb43c44367f');
+            background-size: cover;
+            background-position: center;
+        }
         .title {
-            text-align: center;
+            font-size: 50px;
+            font-weight: bold;
             color: #4CAF50;
-            font-size: 40px;
-            margin-top: 30px;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 5px #000;
         }
-        .subtitle {
-            text-align: center;
-            font-size: 18px;
-            margin-bottom: 30px;
+        .subtext {
+            font-size: 24px;
+            color: #ffffff;
+            margin-bottom: 40px;
+            text-shadow: 1px 1px 3px #000;
         }
-        .footer {
-            text-align: center;
-            font-size: 12px;
-            margin-top: 50px;
-            color: #aaa;
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+        }
+        .stButton>button {
+            background-color: #4CAF50;
+            color: white;
+            font-size: 20px;
+            padding: 12px 30px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+        }
+        .stButton>button:hover {
+            background-color: #45a049;
         }
         </style>
     """, unsafe_allow_html=True)
 
+    # Landing content
     st.markdown("""
-        <div class="title">Credit Card Fraud Detection</div>
-        <div class="subtitle">Worried about Fraud Transactions? Please Sign In or Create a New Account</div>
-        <hr>
+        <div class="landing-container">
+            <div class="title">Credit Card Fraud Detection</div>
+            <div class="subtext">Are you worried about Fraud Transactions?</div>
+        </div>
     """, unsafe_allow_html=True)
 
-    # Ensure the user table exists
-    create_users_table()
+    # Centered "Get Started" Button
+    col1, col2, col3 = st.columns([2, 1, 2])
 
-    # Tabs for Login and Sign Up
-    tab1, tab2 = st.tabs(["Login", "Sign Up"])
-
-    with tab1:
-        with st.container(border=True):
-            st.subheader("🔑 Login")
-            username = st.text_input("Username", key="login_user")
-            password = st.text_input("Password", type="password", key="login_pass")
-
-            if st.button("Login", use_container_width=True, key="login_btn"):
-                user = get_user(username)
-                if user and user[1] == password:
-                    st.success("✅ Login successful")
-                    st.session_state.logged_in = True
-                    st.session_state.user = username
-                    st.session_state.page = "Dashboard"  # 🚀 Move to Dashboard after login
-                    st.rerun()
-                else:
-                    st.error("❌ Invalid username or password.")
-
-    with tab2:
-        with st.container(border=True):
-            st.subheader("🆕 Create Account")
-            new_user = st.text_input("New Username", key="new_user")
-            new_pass = st.text_input("New Password", type="password", key="new_pass")
-
-            if st.button("Sign Up", use_container_width=True, key="signup_btn"):
-                if get_user(new_user):
-                    st.warning("⚠️ Username already exists! Try a different one.")
-                elif new_user and new_pass:
-                    add_user(new_user, new_pass)
-                    st.success("🎉 Account created successfully! Please login now.")
-                else:
-                    st.error("❗ Please fill in all fields.")
-
-    st.markdown("""
-        <div class="footer">Secure Fraud Detection System | 2025</div>
-    """, unsafe_allow_html=True)
+    with col2:
+        if st.button("🚀 Get Started", use_container_width=True):
+            st.session_state.page = "Login"
+            st.rerun()
