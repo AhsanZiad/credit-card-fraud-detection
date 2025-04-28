@@ -2,23 +2,6 @@ import streamlit as st
 
 # Set app layout
 st.set_page_config(page_title="Credit Card Fraud Detection", layout="wide")
-st.markdown("""
-    <style>
-    .stApp {
-        background-color: #f5f7fa;
-    }
-    .dashboard-title, .title {
-        color: #2E8B57;
-        font-family: 'Arial';
-    }
-    .footer {
-        font-size: 12px;
-        color: #999;
-        text-align: center;
-        margin-top: 50px;
-    }
-    </style>
-""", unsafe_allow_html=True)
 
 # Initialize session state
 if "page" not in st.session_state:
