@@ -1,122 +1,67 @@
-import requests
-import json
 import streamlit as st
+import firebase_admin
+from firebase_admin import credentials, firestore
 
-# Read credentials from Streamlit secrets
-FIREBASE_API_KEY = st.secrets["firebase"]["api_key"]
-FIREBASE_PROJECT_ID = st.secrets["firebase"]["project_id"]
+# Initialize Firebase app
+if not firebase_admin._apps:
+    firebase_creds = {
+        "type": st.secrets["firebase"]["type"],
+        "project_id": st.secrets["firebase"]["project_id"],
+        "private_key_id": st.secrets["firebase"]["private_key_id"],
+        "private_key": st.secrets["firebase"]["private_key"],
+        "client_email": st.secrets["firebase"]["client_email"],
+        "client_id": st.secrets["firebase"]["client_id"],
+        "auth_uri": st.secrets["firebase"]["auth_uri"],
+        "token_uri": st.secrets["firebase"]["token_uri"],
+        "auth_provider_x509_cert_url": st.secrets["firebase"]["auth_provider_x509_cert_url"],
+        "client_x509_cert_url": st.secrets["firebase"]["client_x509_cert_url"],
+    }
 
-# Firebase REST API URLs
-FIREBASE_SIGNUP_URL = f"https://identitytoolkit.googleapis.com/v1/accounts:signUp?key={FIREBASE_API_KEY}"
-FIRESTORE_BASE_URL = f"https://firestore.googleapis.com/v1/projects/{FIREBASE_PROJECT_ID}/databases/(default)/documents"
+    cred = credentials.Certificate(firebase_creds)
+    firebase_admin.initialize_app(cred)
 
-# --- USERS Collection ---
+# Initialize Firestore
+db = firestore.client()
+
+# USERS Collection
 
 def add_user(username, password):
-    """Add a new user into Firestore."""
-    user_data = {
-        "fields": {
-            "username": {"stringValue": username},
-            "password": {"stringValue": password}
-        }
-    }
-    url = f"{FIRESTORE_BASE_URL}/users/{username}"
-    response = requests.patch(url, json=user_data)
-
-    if response.status_code == 200:
-        return True
-    else:
-        st.error(f"Failed to create user: {response.text}")
-        return False
+    users_ref = db.collection('users')
+    users_ref.document(username).set({
+        'username': username,
+        'password': password
+    })
 
 def get_user(username):
-    """Get user data by username from Firestore."""
-    url = f"{FIRESTORE_BASE_URL}/users/{username}"
-    response = requests.get(url)
-
-    if response.status_code == 200:
-        doc = response.json()
-        return {
-            "username": doc["fields"]["username"]["stringValue"],
-            "password": doc["fields"]["password"]["stringValue"]
-        }
+    user_ref = db.collection('users').document(username)
+    user = user_ref.get()
+    if user.exists:
+        return user.to_dict()
     else:
         return None
 
 def get_all_users():
-    """Fetch all users from Firestore."""
-    url = f"{FIRESTORE_BASE_URL}/users"
-    response = requests.get(url)
+    users_ref = db.collection('users')
+    docs = users_ref.stream()
+    return [doc.to_dict() for doc in docs]
 
-    users = []
-    if response.status_code == 200:
-        docs = response.json().get("documents", [])
-        for doc in docs:
-            fields = doc["fields"]
-            users.append({
-                "username": fields["username"]["stringValue"],
-                "password": fields["password"]["stringValue"]
-            })
-    return users
-
-# --- PREDICTIONS Collection ---
+# PREDICTIONS Collection
 
 def save_prediction(username, time, amount, status):
-    """Save a fraud prediction into Firestore."""
-    prediction_data = {
-        "fields": {
-            "username": {"stringValue": username},
-            "time": {"doubleValue": float(time)},
-            "amount": {"doubleValue": float(amount)},
-            "status": {"stringValue": status}
-        }
-    }
-    url = f"{FIRESTORE_BASE_URL}/predictions"
-    requests.post(url, json=prediction_data)
+    predictions_ref = db.collection('predictions')
+    predictions_ref.add({
+        'username': username,
+        'time': time,
+        'amount': amount,
+        'status': status
+    })
 
 def get_predictions(username):
-    """Get all predictions for a specific user."""
-    query = {
-        "structuredQuery": {
-            "from": [{"collectionId": "predictions"}],
-            "where": {
-                "fieldFilter": {
-                    "field": {"fieldPath": "username"},
-                    "op": "EQUAL",
-                    "value": {"stringValue": username}
-                }
-            }
-        }
-    }
-    url = f"https://firestore.googleapis.com/v1/projects/{FIREBASE_PROJECT_ID}/databases/(default)/documents:runQuery"
-    response = requests.post(url, json=query)
-
-    predictions = []
-    if response.status_code == 200:
-        for doc in response.json():
-            if 'document' in doc:
-                fields = doc['document']['fields']
-                predictions.append({
-                    "time": fields["time"]["doubleValue"],
-                    "amount": fields["amount"]["doubleValue"],
-                    "status": fields["status"]["stringValue"]
-                })
-    return predictions
+    predictions_ref = db.collection('predictions').where('username', '==', username)
+    docs = predictions_ref.stream()
+    return [doc.to_dict() for doc in docs]
 
 def get_all_predictions():
-    """Fetch all predictions for Admin."""
-    url = f"{FIRESTORE_BASE_URL}/predictions"
-    response = requests.get(url)
-
-    predictions = []
-    if response.status_code == 200:
-        docs = response.json().get("documents", [])
-        for doc in docs:
-            fields = doc["fields"]
-            predictions.append({
-                "username": fields["username"]["stringValue"],
-                "time": fields["time"]["doubleValue"],
-                "amount": fields["amount"]["doubleValue"],
-                "status": fields["status"]["stringValue"]
-            })
-    return predictions
+    predictions_ref = db.collection('predictions')
+    docs = predictions_ref.stream()
+    return [doc.to_dict() for doc in docs]
