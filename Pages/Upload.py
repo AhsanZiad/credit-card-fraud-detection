@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import sqlite3
+from firebase_db import save_prediction
 
 def show_upload(model):
     st.title("📤 Upload Transactions and Detect Fraud")
@@ -13,7 +13,7 @@ def show_upload(model):
         df = pd.read_csv(uploaded_file)
 
         st.subheader("📊 Preview of Uploaded Data")
-        st.write(df.head())
+        st.dataframe(df.head())
 
         try:
             required_features = ['Time', 'V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8',
@@ -32,7 +32,7 @@ def show_upload(model):
 
             if fraud_only:
                 fraud_df = df[df["Prediction"] == 1]
-                st.dataframe(fraud_df)
+                st.dataframe(fraud_df[["Time", "Amount", "Status"]])
             else:
                 st.dataframe(df[["Time", "Amount", "Status"]])
 
@@ -62,33 +62,21 @@ def show_upload(model):
             ax2.set_ylabel("Number of Transactions")
             st.pyplot(fig2)
 
-            # 🧠 Save predictions into database
-            save_predictions(df)
+            # 🧠 Save predictions into Firestore
+            for idx, row in df.iterrows():
+                save_prediction(
+                    username=st.session_state.user,
+                    time=row["Time"],
+                    amount=row["Amount"],
+                    status=row["Status"]
+                )
+
+            st.success("✅ Predictions saved successfully!")
 
         except Exception as e:
             st.error(f"Something went wrong: {e}")
 
-# 🧠 Function to save predictions
-def save_predictions(df):
-    conn = sqlite3.connect('users.db')
-    cursor = conn.cursor()
-
-    # Create table if not exist
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS predictions (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT,
-            time REAL,
-            amount REAL,
-            status TEXT
-        )
-    ''')
-
-    for index, row in df.iterrows():
-        cursor.execute('''
-            INSERT INTO predictions (username, time, amount, status)
-            VALUES (?, ?, ?, ?)
-        ''', (st.session_state.user, row['Time'], row['Amount'], row['Status']))
-
-    conn.commit()
-    conn.close()
+    # Navigation
+    if st.button("⬅️ Back to Dashboard"):
+        st.session_state.page = "Dashboard"
+        st.rerun()

@@ -1,6 +1,6 @@
 import streamlit as st
-import sqlite3
 import pandas as pd
+from firebase_db import get_predictions
 
 def show_dashboard():
     st.markdown("""
@@ -38,39 +38,23 @@ def show_dashboard():
             st.rerun()
 
     if st.session_state.user == "admin":
+        st.markdown("---")
         if st.button("🛡️ Admin Panel"):
             st.session_state.page = "Admin"
             st.rerun()
 
     st.divider()
 
-    # Fetch user-specific uploads
-    conn = sqlite3.connect('users.db')
-    cursor = conn.cursor()
-
-    query = '''
-    CREATE TABLE IF NOT EXISTS predictions (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT,
-        time REAL,
-        amount REAL,
-        status TEXT
-    )
-    '''
-    cursor.execute(query)
-    conn.commit()
-
+    # 📥 Fetch user-specific predictions from Firebase
     st.subheader("📑 Your Previous Predictions")
-    
-    fetch_query = "SELECT time, amount, status FROM predictions WHERE username=?"
-    cursor.execute(fetch_query, (st.session_state.user,))
-    rows = cursor.fetchall()
 
-    if rows:
-        df = pd.DataFrame(rows, columns=["Time", "Amount", "Status"])
-        st.dataframe(df)
+    user_predictions = get_predictions(st.session_state.user)
 
-        frauds = df[df["Status"] == "🚨 Fraud"]
+    if user_predictions:
+        df = pd.DataFrame(user_predictions)
+        st.dataframe(df[["time", "amount", "status"]])
+
+        frauds = df[df["status"] == "🚨 Fraud"]
         if not frauds.empty:
             st.warning(f"🚨 {len(frauds)} fraudulent transactions detected.")
         else:
@@ -79,6 +63,4 @@ def show_dashboard():
         csv = df.to_csv(index=False).encode('utf-8')
         st.download_button("📥 Download Your Prediction History", csv, "your_predictions.csv", "text/csv")
     else:
-        st.info("ℹ️ No previous uploads found.")
-
-    conn.close()
+        st.info("ℹ️ No previous uploads found yet.")

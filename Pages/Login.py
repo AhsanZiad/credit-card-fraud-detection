@@ -70,3 +70,7 @@ def show_login():
     st.markdown("""
         <div class="footer">Secure Fraud Detection System | 2025</div>
     """, unsafe_allow_html=True)
+    st.markdown("---")
+    if st.button("⬅️ Back to Home"):
+        st.session_state.page = "Home"
+        st.rerun()
