@@ -5,44 +5,62 @@ from firebase_db import get_predictions
 def show_dashboard():
     st.markdown("""
         <style>
+        .navbar {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .navbar button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .navbar button:hover {
+            background-color: #45a049;
+        }
         .dashboard-title {
             text-align: center;
             color: #4CAF50;
             font-size: 40px;
-            margin-top: 30px;
-            margin-bottom: 10px;
+            margin-top: 10px;
+            margin-bottom: 30px;
         }
         </style>
     """, unsafe_allow_html=True)
 
-    st.markdown("<div class='dashboard-title'>📊 Dashboard</div>", unsafe_allow_html=True)
+    # Navbar Top Right
+    st.markdown("""
+        <div class="navbar">
+            <form action="?nav=upload" method="post"><button type="submit">Upload Transactions</button></form>
+            <form action="?nav=about" method="post"><button type="submit">About Us</button></form>
+            <form action="?nav=logout" method="post"><button type="submit">Log Out</button></form>
+        </div>
+    """, unsafe_allow_html=True)
 
-    if st.button("🔓 Log Out"):
+    # Navigation Button Handling
+    nav = st.experimental_get_query_params().get("nav")
+    if nav == ["upload"]:
+        st.session_state.page = "Upload"
+        st.experimental_rerun()
+    if nav == ["about"]:
+        st.session_state.page = "About"
+        st.experimental_rerun()
+    if nav == ["logout"]:
         st.session_state.logged_in = False
         st.session_state.user = ""
         st.session_state.page = "Home"
-        st.rerun()
+        st.experimental_rerun()
 
-    col1, col2 = st.columns(2)
-
-    with col1:
-        if st.button("📤 Upload Transactions"):
-            st.session_state.page = "Upload"
-            st.rerun()
-
-    with col2:
-        if st.button("ℹ️ About Us"):
-            st.session_state.page = "About"
-            st.rerun()
-
-    if st.session_state.user == "admin":
-        st.markdown("---")
-        if st.button("🛡️ Admin Panel"):
-            st.session_state.page = "Admin"
-            st.rerun()
-
+    # Dashboard Title
+    st.markdown("<div class='dashboard-title'>📊 Dashboard</div>", unsafe_allow_html=True)
     st.divider()
 
+    # Predictions Section
     st.subheader("📑 Your Previous Predictions")
 
     user_predictions = get_predictions(st.session_state.user)
@@ -65,3 +83,4 @@ def show_dashboard():
             st.info("ℹ️ No previous uploads found yet.")
     else:
         st.info("ℹ️ No previous uploads found yet.")
+
