@@ -43,7 +43,8 @@ def show_dashboard():
     """, unsafe_allow_html=True)
 
     # Navigation Button Handling
-    nav = st.experimental_get_query_params().get("nav")
+    nav = st.query_params.get("nav")
+
     if nav == ["upload"]:
         st.session_state.page = "Upload"
         st.experimental_rerun()
