@@ -44,7 +44,3 @@ def show_home():
         if st.button("Sign Up"):
             st.session_state.page = "Login"  # You can route this to a separate signup page if needed
 
-    st.markdown('</div></div>', unsafe_allow_html=True)
-st.header(f"Welcome {st.session_state.get('user', '')}!")
-if st.button("Upload Data for Fraud Detection"):
-    st.session_state.page = "Upload"
