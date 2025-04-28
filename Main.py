@@ -1,9 +1,9 @@
 import streamlit as st
 
-# Set app layout
+# Set page config
 st.set_page_config(page_title="Credit Card Fraud Detection", layout="wide")
 
-# Initialize session state
+# Initialize session state variables
 if "page" not in st.session_state:
     st.session_state.page = "Home"
 if "logged_in" not in st.session_state:
@@ -25,7 +25,7 @@ def route():
         from Pages.Upload import show_upload
         from joblib import load
 
-        # Load the trained ML model
+        # Load your trained ML model
         model = load("credit_card_fraud_detection.pkl")
         show_upload(model)
 
