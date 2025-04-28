@@ -43,20 +43,18 @@ def show_dashboard():
     """, unsafe_allow_html=True)
 
     # Navigation Button Handling
-    # Navigation Button Handling
-nav = st.query_params.get("nav")
-if nav == ["upload"]:
-    st.session_state.page = "Upload"
-    st.experimental_rerun()
-if nav == ["about"]:
-    st.session_state.page = "About"
-    st.experimental_rerun()
-if nav == ["logout"]:
-    st.session_state.logged_in = False
-    st.session_state.user = ""
-    st.session_state.page = "Home"
-    st.experimental_rerun()
-
+    nav = st.experimental_get_query_params().get("nav")
+    if nav == ["upload"]:
+        st.session_state.page = "Upload"
+        st.experimental_rerun()
+    if nav == ["about"]:
+        st.session_state.page = "About"
+        st.experimental_rerun()
+    if nav == ["logout"]:
+        st.session_state.logged_in = False
+        st.session_state.user = ""
+        st.session_state.page = "Home"
+        st.experimental_rerun()
 
     # Dashboard Title
     st.markdown("<div class='dashboard-title'>📊 Dashboard</div>", unsafe_allow_html=True)
