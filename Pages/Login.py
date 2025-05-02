@@ -62,7 +62,8 @@ def show_login():
                 if get_user(new_user):
                     st.warning("⚠️ Username already exists! Try a different one.")
                 elif new_user and new_pass:
-                    if add_user(new_user, new_pass):
+                    success = add_user(new_user, new_pass)
+                    if success:
                         st.success("🎉 Account created successfully! Please login now.")
                         st.rerun()
                     else:

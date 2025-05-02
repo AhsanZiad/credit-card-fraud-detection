@@ -26,12 +26,17 @@ db = firestore.client()
 # ---------------- USERS COLLECTION ---------------- #
 
 def add_user(username, password):
-    """Add a new user to Firestore."""
-    users_ref = db.collection('users')
-    users_ref.document(username).set({
-        'username': username,
-        'password': password
-    })
+    try:
+        users_ref = db.collection('users')
+        users_ref.document(username).set({
+            'username': username,
+            'password': password
+        })
+        return True
+    except Exception as e:
+        print(f"Error adding user: {e}")
+        return False
+
 
 def get_user(username):
     """Get user data by username."""
