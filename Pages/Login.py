@@ -1,4 +1,5 @@
 import streamlit as st
+import time
 from firebase_db import add_user, get_user
 
 def show_login():
@@ -36,14 +37,15 @@ def show_login():
     with tab1:
         with st.container(border=True):
             st.subheader("🔑 Login")
-            username = st.text_input("Username", key="login_user")
-            password = st.text_input("Password", type="password", key="login_pass")
+            username = st.text_input("Username", key="login_user_input")
+            password = st.text_input("Password", type="password", key="login_pass_input")
 
-            if st.button("Login", use_container_width=True, key="login_btn"):
+            if st.button("Login", use_container_width=True, key="login_button"):
                 user = get_user(username)
                 if user:
                     if user.get('password') == password:
                         st.success("✅ Login successful!")
+                        time.sleep(1)
                         st.session_state.logged_in = True
                         st.session_state.user = username
                         st.session_state.page = "Dashboard"
@@ -57,10 +59,10 @@ def show_login():
     with tab2:
         with st.container(border=True):
             st.subheader("🆕 Create Account")
-            new_user = st.text_input("New Username", key="new_user")
-            new_pass = st.text_input("New Password", type="password", key="new_pass")
+            new_user = st.text_input("New Username", key="signup_user_input")
+            new_pass = st.text_input("New Password", type="password", key="signup_pass_input")
 
-            if st.button("Sign Up", use_container_width=True, key="signup_btn"):
+            if st.button("Sign Up", use_container_width=True, key="signup_button"):
                 if not new_user or not new_pass:
                     st.error("❗ Please fill in all fields.")
                 elif get_user(new_user):
@@ -69,6 +71,7 @@ def show_login():
                     success = add_user(new_user, new_pass)
                     if success:
                         st.success("🎉 Account created successfully! Please login now.")
+                        time.sleep(1)
                         st.rerun()
                     else:
                         st.error("❗ Failed to create account.")
@@ -80,6 +83,6 @@ def show_login():
 
     st.markdown("---")
 
-    if st.button("⬅️ Back to Home"):
+    if st.button("⬅️ Back to Home", key="back_button"):
         st.session_state.page = "Home"
         st.rerun()
