@@ -32,6 +32,7 @@ def show_login():
 
     tab1, tab2 = st.tabs(["🔑 Login", "🆕 Sign Up"])
 
+    # ---------------- Login Tab ---------------- #
     with tab1:
         with st.container(border=True):
             st.subheader("🔑 Login")
@@ -52,6 +53,7 @@ def show_login():
                 else:
                     st.error("❌ Username not found.")
 
+    # ---------------- Sign Up Tab ---------------- #
     with tab2:
         with st.container(border=True):
             st.subheader("🆕 Create Account")
@@ -59,18 +61,19 @@ def show_login():
             new_pass = st.text_input("New Password", type="password", key="new_pass")
 
             if st.button("Sign Up", use_container_width=True, key="signup_btn"):
-                if get_user(new_user):
+                if not new_user or not new_pass:
+                    st.error("❗ Please fill in all fields.")
+                elif get_user(new_user):
                     st.warning("⚠️ Username already exists! Try a different one.")
-                elif new_user and new_pass:
+                else:
                     success = add_user(new_user, new_pass)
                     if success:
                         st.success("🎉 Account created successfully! Please login now.")
                         st.rerun()
                     else:
                         st.error("❗ Failed to create account.")
-                else:
-                    st.error("❗ Please fill in all fields.")
 
+    # ---------------- Footer and Back Button ---------------- #
     st.markdown("""
         <div class="footer">Secure Fraud Detection System | 2025</div>
     """, unsafe_allow_html=True)

@@ -17,8 +17,11 @@ if not firebase_admin._apps:
         "client_x509_cert_url": st.secrets["firebase"]["client_x509_cert_url"]
     }
 
-    cred = credentials.Certificate(firebase_creds)
-    firebase_admin.initialize_app(cred)
+    try:
+        cred = credentials.Certificate(firebase_creds)
+        firebase_admin.initialize_app(cred)
+    except Exception as e:
+        print(f"Firebase initialization failed: {e}")
 
 # Initialize Firestore
 db = firestore.client()
@@ -37,42 +40,54 @@ def add_user(username, password):
         print(f"Error adding user: {e}")
         return False
 
-
 def get_user(username):
-    """Get user data by username."""
-    user_ref = db.collection('users').document(username)
-    user = user_ref.get()
-    if user.exists:
-        return user.to_dict()
-    else:
+    try:
+        user_ref = db.collection('users').document(username)
+        user = user_ref.get()
+        if user.exists:
+            return user.to_dict()
+        return None
+    except Exception as e:
+        print(f"Error retrieving user: {e}")
         return None
 
 def get_all_users():
-    """Fetch all users."""
-    users_ref = db.collection('users')
-    docs = users_ref.stream()
-    return [doc.to_dict() for doc in docs]
+    try:
+        users_ref = db.collection('users')
+        docs = users_ref.stream()
+        return [doc.to_dict() for doc in docs]
+    except Exception as e:
+        print(f"Error fetching users: {e}")
+        return []
 
 # ---------------- PREDICTIONS COLLECTION ---------------- #
 
 def save_prediction(username, time, amount, status):
-    """Save a transaction prediction."""
-    predictions_ref = db.collection('predictions')
-    predictions_ref.add({
-        'username': username,
-        'time': time,         # 🛠 fixed quotation
-        'amount': amount,
-        'status': status
-    })
+    try:
+        predictions_ref = db.collection('predictions')
+        predictions_ref.add({
+            'username': username,
+            'time': time,
+            'amount': amount,
+            'status': status
+        })
+    except Exception as e:
+        print(f"Error saving prediction: {e}")
 
 def get_predictions(username):
-    """Get all predictions for a specific user."""
-    predictions_ref = db.collection('predictions').where('username', '==', username)
-    docs = predictions_ref.stream()
-    return [doc.to_dict() for doc in docs]
+    try:
+        predictions_ref = db.collection('predictions').where('username', '==', username)
+        docs = predictions_ref.stream()
+        return [doc.to_dict() for doc in docs]
+    except Exception as e:
+        print(f"Error retrieving predictions: {e}")
+        return []
 
 def get_all_predictions():
-    """Fetch all predictions (for Admin panel)."""
-    predictions_ref = db.collection('predictions')
-    docs = predictions_ref.stream()
-    return [doc.to_dict() for doc in docs]
+    try:
+        predictions_ref = db.collection('predictions')
+        docs = predictions_ref.stream()
+        return [doc.to_dict() for doc in docs]
+    except Exception as e:
+        print(f"Error retrieving all predictions: {e}")
+        return []
