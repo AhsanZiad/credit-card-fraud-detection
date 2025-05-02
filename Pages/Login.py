@@ -66,7 +66,8 @@ def show_login():
                     if success:
                         st.success("🎉 Account created successfully! Please login now.")
                         st.rerun()
-                    
+                    else:
+                        st.error("❗ Failed to create account.")
                 else:
                     st.error("❗ Please fill in all fields.")
 
