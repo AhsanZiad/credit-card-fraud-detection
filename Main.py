@@ -32,9 +32,5 @@ def route():
         from Pages.About import show_about
         show_about()
 
-    elif st.session_state.page == "Admin":
-        from Pages.Admin import show_admin
-        show_admin()
-
 if __name__ == "__main__":
     route()
