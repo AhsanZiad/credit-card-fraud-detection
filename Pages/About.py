@@ -16,14 +16,14 @@ def show_about():
     st.markdown("<div class='about-title'>ℹ️ About Us</div>", unsafe_allow_html=True)
 
     st.write("""
-    Welcome to the **Credit Card Fraud Detection System**! 🎯
+    Welcome to the **Credit Card Fraud Detection System**! 
 
     Our mission is to protect individuals and businesses from financial fraud using AI-powered technology.
 
     **Key Features:**
     - 📈 Real-time transaction analysis
     - 🛡️ Secure and private predictions
-    - 🤝 Trusted by users worldwide
+
 
     **Developed with ❤️ by Ahsan Ziad**  
     University of Westminster | 2025
